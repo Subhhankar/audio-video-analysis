@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Analysis Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='chat.css') }}">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --accent-color: #e74c3c;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #3498db;
+            --neutral-color: #7f8c8d;
+            --bg-light: #f8f9fa;
+            --bg-dark: #2c3e50;
+            --text-dark: #2c3e50;
+            --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            --chart-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        body {
+            padding-top: 50px;
+            padding-bottom: 50px;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+        }
+        
+        .card {
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 24px;
+            border: none;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(52, 152, 219, 0.2) 100%);
+            border-bottom: 1px solid rgba(52, 152, 219, 0.2);
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            color: var(--bg-dark);
+            margin-top: 15px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6b8a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding-bottom: 10px;
+        }
+        
+        .app-logo {
+            max-width: 120px;
+            margin: 0 auto 15px auto;
+            display: block;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .app-logo:hover {
+            transform: scale(1.05) rotate(5deg);
+        }
+        
+        .thumbnail {
+            max-width: 100%;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease;
+        }
+        
+        .thumbnail:hover {
+            transform: scale(1.02);
+        }
+        
+        .media-player {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: var(--card-shadow);
+            background-color: #2c3e50;
+        }
+        
+        .badge {
+            font-size: 0.8rem;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .badge-emotion {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+        
+        .badge-visual {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+        }
+        
+        .badge-audio {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+        
+        .badge-comprehensive {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+        
+        .badge-clinical {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+        }
+        
+        .badge-profile {
+            background: linear-gradient(135deg, #16a085 0%, #1abc9c 100%);
+            color: white;
+        }
+        
+        .btn-back {
+            margin-top: 30px;
+            transition: all 0.3s;
+            border-radius: 30px;
+            padding: 12px 30px;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-back:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .emotion-card {
+            border-radius: 12px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            background: linear-gradient(135deg, white 0%, #fafafa 100%);
+        }
+        
+        .emotion-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .emotion-score {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .progress {
+            height: 12px;
+            border-radius: 6px;
+            margin-top: 8px;
+            margin-bottom: 15px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .progress-bar-happy {
+            background: linear-gradient(90deg, #f1c40f 0%, #f39c12 100%);
+        }
+        
+        .progress-bar-sad {
+            background: linear-gradient(90deg, #3498db 0%, #2980b9 100%);
+        }
+        
+        .progress-bar-angry {
+            background: linear-gradient(90deg, #e74c3c 0%, #c0392b 100%);
+        }
+        
+        .progress-bar-fearful {
+            background: linear-gradient(90deg, #9b59b6 0%, #8e44ad 100%);
+        }
+        
+        .progress-bar-disgusted {
+            background: linear-gradient(90deg, #1abc9c 0%, #16a085 100%);
+        }
+        
+        .progress-bar-surprised {
+            background: linear-gradient(90deg, #e67e22 0%, #d35400 100%);
+        }
+        
+        .progress-bar-contempt {
+            background: linear-gradient(90deg, #34495e 0%, #2c3e50 100%);
+        }
+        
+        .progress-bar-neutral {
+            background: linear-gradient(90deg, #95a5a6 0%, #7f8c8d 100%);
+        }
+        
+        .progress-bar-anxious {
+            background: linear-gradient(90deg, #d35400 0%, #c0392b 100%);
+        }
+        
+        .summary-section {
+            background-color: rgba(52, 152, 219, 0.05);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--primary-color);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .summary-section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .behavioral-section {
+            background-color: rgba(46, 204, 113, 0.05);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--success-color);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .behavioral-section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .behavioral-tag {
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, rgba(46, 204, 113, 0.2) 100%);
+            color: #16a085;
+            border: 1px solid rgba(46, 204, 113, 0.3);
+            border-radius: 20px;
+            padding: 8px 16px;
+            margin: 5px;
+            display: inline-block;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .behavioral-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.2) 0%, rgba(46, 204, 113, 0.3) 100%);
+        }
+        
+        .primary-emotion {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(52, 152, 219, 0.2) 100%);
+            border: none;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+        
+        .primary-emotion:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+        }
+        
+        .primary-emotion-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+        
+        .primary-emotion-value {
+            font-size: 3rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .justification {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #555;
+            font-style: italic;
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-top: 15px;
+            border-left: 3px solid #e0e0e0;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .justification:hover {
+            background-color: #f0f0f0;
+            border-left-color: var(--primary-color);
+        }
+        
+        .justify-icon {
+            color: #7f8c8d;
+            margin-right: 8px;
+            font-size: 0.9em;
+        }
+        
+        .chart-container {
+            margin: 35px 0;
+            padding: 0;
+            position: relative;
+        }
+        
+        .chart-image {
+            max-width: 100%;
+            border-radius: 16px;
+            box-shadow: var(--chart-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .chart-image:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .chart-title {
+            position: relative;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .chart-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            width: 40px;
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border-radius: 2px;
+        }
+        
+        .chart-description {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            background-color: rgba(241, 245, 249, 0.7);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid #cbd5e1;
+        }
+        
+        .timeline-container {
+            position: relative;
+            margin: 40px 0;
+            padding-left: 50px;
+        }
+        
+        .timeline-line {
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, #3498db 0%, #2980b9 100%);
+            border-radius: 2px;
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 12px;
+            background-color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            z-index: 1;
+        }
+        
+        .timeline-item:hover {
+            transform: translateX(8px) translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            left: -42px;
+            top: 20px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 12px;
+            z-index: 2;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .timeline-dot:before {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(52, 152, 219, 0.2);
+            z-index: -1;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                opacity: 0.7;
+            }
+            70% {
+                transform: scale(1.1);
+                opacity: 0.3;
+            }
+            100% {
+                transform: scale(0.95);
+                opacity: 0.7;
+            }
+        }
+        
+        .timeline-timestamp {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-bottom: 8px;
+        }
+        
+        .timeline-emotion {
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            color: #2c3e50;
+        }
+        
+        .timeline-desc {
+            margin-bottom: 10px;
+            color: #555;
+        }
+        
+        .timeline-sentence {
+            font-style: italic;
+            background-color: #f8f9fa;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-top: 12px;
+            position: relative;
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .timeline-sentence::before {
+            content: '"';
+            font-size: 24px;
+            color: #bdc3c7;
+            position: absolute;
+            left: 8px;
+            top: 0;
+        }
+        
+        .timeline-sentence::after {
+            content: '"';
+            font-size: 24px;
+            color: #bdc3c7;
+            position: absolute;
+            right: 8px;
+            bottom: -10px;
+        }
+        
+        .modality-section {
+            margin: 35px 0;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease;
+        }
+        
+        .modality-section:hover {
+            transform: translateY(-5px);
+        }
+        
+        .modality-header {
+            padding: 18px 25px;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .modality-visual .modality-header {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        }
+        
+        .modality-audio .modality-header {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+        
+        .modality-verbal .modality-header {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+        
+        .modality-body {
+            background-color: white;
+            padding: 25px;
+            border: none;
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
+        }
+        
+        .modality-item {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+        }
+        
+        .modality-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .modality-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .modality-cue {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        
+        .modality-interpretation {
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        .nav-tabs {
+            border: none;
+            margin-bottom: 25px;
+            gap: 10px;
+        }
+        
+        .nav-tabs .nav-link {
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            margin-right: 10px;
+            transition: all 0.3s;
+            font-weight: 600;
+            color: #7f8c8d;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            background-color: white;
+        }
+        
+        .nav-tabs .nav-link:hover {
+            color: #2c3e50;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .nav-tabs .nav-link.active {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .tab-pane {
+            padding: 20px 0;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .footer {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-top: 40px;
+            padding-top: 25px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        .fade-in-delay-1 {
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out 0.1s forwards;
+        }
+        
+        .fade-in-delay-2 {
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out 0.2s forwards;
+        }
+        
+        .fade-in-delay-3 {
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out 0.3s forwards;
+        }
+        
+        /* Timer styling for timeline */
+        .timestamp-formatted {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(52, 152, 219, 0.2) 100%);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-family: monospace;
+            font-weight: bold;
+            color: #2980b9;
+            display: inline-block;
+        }
+        
+        /* Alert styling */
+        .alert {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .alert-info {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(52, 152, 219, 0.2) 100%);
+            border-left: 5px solid #3498db;
+            color: #2c3e50;
+        }
+        
+        .alert-warning {
+            background: linear-gradient(135deg, rgba(243, 156, 18, 0.1) 0%, rgba(243, 156, 18, 0.2) 100%);
+            border-left: 5px solid #f39c12;
+            color: #2c3e50;
+        }
+        
+        .alert-primary {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(52, 152, 219, 0.2) 100%);
+            border-left: 5px solid #3498db;
+            color: #2c3e50;
+        }
+        
+        /* Feature card styling for raw feature data */
+        .feature-card {
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+        
+        .feature-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .feature-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .badge-high {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .badge-medium {
+            background-color: rgba(249, 115, 22, 0.1);
+            color: #f97316;
+            border: 1px solid rgba(249, 115, 22, 0.3);
+        }
+        
+        .badge-low {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        /* Facial landmarks styling */
+        .landmarks-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .landmark-point {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: rgba(59, 130, 246, 0.7);
+            position: absolute;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+        }
+        
+        .landmark-label {
+            position: absolute;
+            font-size: 10px;
+            background-color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
+            z-index: 1;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+        
+        /* Feature metrics styling */
+        .metrics-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .metric-card {
+            flex: 1 1 180px;
+            padding: 20px;
+            border-radius: 12px;
+            background: linear-gradient(145deg, #ffffff, #f5f5f5);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.06);
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+        
+        .metric-title {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 4px;
+        }
+        
+        .metric-unit {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+        
+        .metric-trend {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+        
+        .trend-up {
+            color: #10b981;
+        }
+        
+        .trend-down {
+            color: #ef4444;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .primary-emotion-value {
+                font-size: 2.5rem;
+            }
+            
+            .timeline-container {
+                padding-left: 40px;
+            }
+            
+            .timeline-dot {
+                left: -35px;
+            }
+            
+            .nav-tabs {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+            
+            .nav-tabs .nav-link {
+                white-space: nowrap;
+                padding: 10px 20px;
+            }
+            
+            .landmarks-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .metrics-container {
+                flex-direction: column;
+            }
+            
+            .metric-card {
+                flex: 1 1 100%;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .landmarks-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header fade-in">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Emotion Analysis" class="app-logo">
+            <h1>Advanced Emotion Analysis</h1>
+            <p class="lead">Multimodal Emotional Intelligence Insights</p>
+        </div>
+        
+        <div class="card fade-in-delay-1">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i> Analysis Results</h5>
+                    
+                    <div>
+                        {% if result.has_profile %}
+                            <span class="badge badge-profile me-2"><i class="fas fa-user-circle me-1"></i> Profile Enhanced</span>
+                        {% endif %}
+                        
+                        {% if result.task_type == "emotion" %}
+                            <span class="badge badge-emotion"><i class="fas fa-smile me-1"></i> Emotion Recognition</span>
+                        {% elif result.task_type == "visual" %}
+                            <span class="badge badge-visual"><i class="fas fa-eye me-1"></i> Visual Analysis</span>
+                        {% elif result.task_type == "audio" %}
+                            <span class="badge badge-audio"><i class="fas fa-headphones me-1"></i> Audio Analysis</span>
+                        {% elif result.task_type == "comprehensive" %}
+                            <span class="badge badge-comprehensive"><i class="fas fa-brain me-1"></i> Comprehensive Analysis</span>
+                        {% elif result.task_type == "clinical" %}
+                            <span class="badge badge-clinical"><i class="fas fa-notes-medical me-1"></i> Clinical Assessment</span>
+                        {% else %}
+                            <span class="badge bg-secondary"><i class="fas fa-chart-bar me-1"></i> General Analysis</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-image me-2 text-primary"></i> Media Preview:</h6>
+                        <img src="{{ url_for('static', filename=thumbnail) }}" alt="Media thumbnail" class="thumbnail">
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-play-circle me-2 text-primary"></i> Media Playback:</h6>
+                        {% if result.media_type == "video" %}
+                            <video controls class="media-player">
+                                <source src="{{ media_path }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        {% else %}
+                            <audio controls class="media-player">
+                                <source src="{{ media_path }}" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Analysis Tabs -->
+                <ul class="nav nav-tabs mt-4" id="analysisTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" 
+                                type="button" role="tab" aria-controls="overview" aria-selected="true">
+                            <i class="fas fa-chart-pie me-1"></i> Overview
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="timeline-tab" data-bs-toggle="tab" data-bs-target="#timeline" 
+                                type="button" role="tab" aria-controls="timeline" aria-selected="false">
+                            <i class="fas fa-clock me-1"></i> Timeline
+                        </button>
+                    </li>
+                    {% if result.media_type == "video" %}
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="visual-tab" data-bs-toggle="tab" data-bs-target="#visual" 
+                                type="button" role="tab" aria-controls="visual" aria-selected="false">
+                            <i class="fas fa-eye me-1"></i> Visual Analysis
+                        </button>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="audio-tab" data-bs-toggle="tab" data-bs-target="#audio" 
+                                type="button" role="tab" aria-controls="audio" aria-selected="false">
+                            <i class="fas fa-headphones me-1"></i> Audio Analysis
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="verbal-tab" data-bs-toggle="tab" data-bs-target="#verbal" 
+                                type="button" role="tab" aria-controls="verbal" aria-selected="false">
+                            <i class="fas fa-comment me-1"></i> Verbal Content
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="raw-data-tab" data-bs-toggle="tab" data-bs-target="#raw-data" 
+                                type="button" role="tab" aria-controls="raw-data" aria-selected="false">
+                            <i class="fas fa-code me-1"></i> Raw Features
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="chat-tab" data-bs-toggle="tab" data-bs-target="#chat" 
+                                type="button" role="tab" aria-controls="chat" aria-selected="false">
+                            <i class="fas fa-comments me-1"></i> Chat with Psychologist
+                        </button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="analysisTabContent">
+                    <!-- Overview Tab -->
+                    <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+                        <!-- Primary Emotion -->
+                        <div class="primary-emotion fade-in-delay-2">
+                            <div class="primary-emotion-title">Primary Detected Emotion</div>
+                            <div class="primary-emotion-value">{{ result.primary_emotion }}</div>
+                        </div>
+                        
+                        <!-- Summary Section -->
+                        <div class="summary-section fade-in-delay-2">
+                            <h5 class="chart-title"><i class="fas fa-file-alt me-2"></i> Analysis Summary</h5>
+                            <p>{{ result.analysis_summary }}</p>
+                        </div>
+                        
+                        <!-- Charts Section -->
+                        <div class="row chart-container fade-in-delay-2">
+                            {% if result.intensity_chart %}
+                            <div class="col-md-6 mb-4">
+                                <h5 class="chart-title"><i class="fas fa-chart-bar me-2"></i> Emotion Intensity</h5>
+                                <img src="{{ url_for('uploaded_file', filename='charts/' + result.intensity_chart) }}" 
+                                     alt="Emotion Intensity Chart" class="chart-image">
+                            </div>
+                            {% endif %}
+                            
+                            {% if result.timeline_chart %}
+                            <div class="col-md-6 mb-4">
+                                <h5 class="chart-title"><i class="fas fa-chart-line me-2"></i> Emotion Timeline</h5>
+                                <img src="{{ url_for('uploaded_file', filename='charts/' + result.timeline_chart) }}" 
+                                     alt="Emotion Timeline Chart" class="chart-image">
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Behavioral Indicators -->
+                        <div class="behavioral-section fade-in-delay-2">
+                            <h5 class="chart-title"><i class="fas fa-clipboard-list me-2"></i> Behavioral Indicators</h5>
+                            <div class="mt-3">
+                                {% for indicator in result.behavioral_indicators %}
+                                    <span class="behavioral-tag"><i class="fas fa-check me-1"></i> {{ indicator }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Emotion Scores -->
+                        <h5 class="chart-title mt-4 mb-3 fade-in-delay-2"><i class="fas fa-sliders-h me-2"></i> Emotion Scores</h5>
+                        <div class="row fade-in-delay-3">
+                            {% for emotion in result.emotions %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card emotion-card">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 class="mb-0">{{ emotion.name|capitalize }}</h6>
+                                                <span class="emotion-score">{{ emotion.score }}/10</span>
+                                            </div>
+                                            
+                                            <div class="progress">
+                                                <div class="progress-bar progress-bar-{{ emotion.name|lower }}" role="progressbar" 
+                                                     style="width: {{ emotion.score*10 }}%" aria-valuenow="{{ emotion.score }}" 
+                                                     aria-valuemin="0" aria-valuemax="10"></div>
+                                            </div>
+                                            
+                                            <div class="justification">
+                                                <i class="fas fa-quote-left justify-icon"></i> {{ emotion.justification }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <!-- Add this after the Emotion Scores section in the overview tab -->
+                        <h5 class="chart-title mt-5 mb-3 fade-in-delay-2"><i class="fas fa-music me-2"></i> Music Recommendations</h5>
+                        <div class="row fade-in-delay-3">
+                            {% if result.music_recommendations %}
+                                {% for recommendation in result.music_recommendations %}
+                                    <div class="col-md-4 mb-4">
+                                        <div class="card h-100 emotion-card">
+                                            <div class="position-relative">
+                                                <a href="{{ recommendation.youtube_url }}" target="_blank">
+                                                    <img src="{{ recommendation.thumbnail_url }}" alt="{{ recommendation.title }}" class="card-img-top">
+                                                    <div class="position-absolute" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                                        <i class="fas fa-play-circle fa-3x text-white opacity-75"></i>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                            <div class="card-body">
+                                                <h5 class="card-title">{{ recommendation.title }}</h5>
+                                                <h6 class="card-subtitle mb-2 text-muted">{{ recommendation.artist }}</h6>
+                                                <p class="card-text">{{ recommendation.explanation }}</p>
+                                                <a href="{{ recommendation.youtube_url }}" class="btn btn-sm btn-primary mt-2" target="_blank">
+                                                    <i class="fab fa-youtube me-1"></i> Listen on YouTube
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="col-12">
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle me-2"></i> No music recommendations available.
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Timeline Tab -->
+                    <div class="tab-pane fade" id="timeline" role="tabpanel" aria-labelledby="timeline-tab">
+                        <h5 class="chart-title mb-4"><i class="fas fa-clock me-2"></i> Emotional Timeline</h5>
+                        
+                        <div class="timeline-container">
+                            <div class="timeline-line"></div>
+                            
+                            {% for entry in result.timeline %}
+                                <div class="timeline-item" data-timestamp="{{ entry.timestamp }}">
+                                    <div class="timeline-dot">
+                                        <i class="fas fa-circle"></i>
+                                    </div>
+                                    <div class="timeline-timestamp">
+                                        <span class="timestamp-formatted">
+                                            <i class="fas fa-clock me-1"></i>
+                                            {{ '%02d:%02d'|format(entry.timestamp//60, entry.timestamp%60) }}
+                                        </span>
+                                    </div>
+                                    <div class="timeline-emotion">
+                                        <i class="fas 
+                                        {% if entry.emotion|lower == 'happy' %}fa-smile
+                                        {% elif entry.emotion|lower == 'sad' %}fa-sad-tear
+                                        {% elif entry.emotion|lower == 'angry' %}fa-angry
+                                        {% elif entry.emotion|lower == 'fearful' %}fa-grimace
+                                        {% elif entry.emotion|lower == 'disgusted' %}fa-dizzy
+                                        {% elif entry.emotion|lower == 'surprised' %}fa-surprise
+                                        {% elif entry.emotion|lower == 'contempt' %}fa-meh
+                                        {% elif entry.emotion|lower == 'neutral' %}fa-meh-blank
+                                        {% elif entry.emotion|lower == 'anxious' %}fa-tired
+                                        {% else %}fa-face
+                                        {% endif %} me-2"></i>
+                                        {{ entry.emotion|capitalize }}
+                                    </div>
+                                    <div class="timeline-desc">
+                                        {{ entry.description }}
+                                    </div>
+                                    {% if entry.key_sentence %}
+                                        <div class="timeline-sentence">
+                                            {{ entry.key_sentence }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        {% if result.timeline_chart %}
+                        <div class="chart-container mt-5">
+                            <h5 class="chart-title"><i class="fas fa-chart-line me-2"></i> Emotion Flow Analysis</h5>
+                            <img src="{{ url_for('uploaded_file', filename='charts/' + result.timeline_chart) }}" 
+                                 alt="Emotion Timeline Chart" class="chart-image">
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Visual Analysis Tab -->
+                    {% if result.media_type == "video" %}
+                    <div class="tab-pane fade" id="visual" role="tabpanel" aria-labelledby="visual-tab">
+                        {% if result.facial_landmarks_chart %}
+                        <div class="chart-container mb-4">
+                            <h5 class="chart-title"><i class="fas fa-face-smile me-2"></i> Facial Landmarks Analysis</h5>
+                            <img src="{{ url_for('uploaded_file', filename='charts/' + result.facial_landmarks_chart) }}" 
+                                 alt="Facial Landmarks Analysis" class="chart-image">
+                            <div class="chart-description">
+                                <i class="fas fa-info-circle me-2"></i> This visualization shows detected facial landmarks at key moments, highlighting facial expressions and movement patterns that indicate emotional states.
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if result.facial_expression_chart %}
+                        <div class="chart-container mb-4">
+                            <h5 class="chart-title"><i class="fas fa-smile me-2"></i> Facial Expression Analysis</h5>
+                            <img src="{{ url_for('uploaded_file', filename='charts/' + result.facial_expression_chart) }}" 
+                                 alt="Facial Expression Analysis" class="chart-image">
+                        </div>
+                        {% endif %}
+                        
+                        <div class="modality-section modality-visual">
+                            <div class="modality-header">
+                                <i class="fas fa-eye me-2"></i> Visual Cues Analysis
+                            </div>
+                            <div class="modality-body">
+                                {% if result.modality_analysis.visual|length > 0 %}
+                                    {% for item in result.modality_analysis.visual %}
+                                        <div class="modality-item">
+                                            <div class="modality-cue">
+                                                <i class="fas fa-angle-right me-2"></i> {{ item.cue }}
+                                            </div>
+                                            <div class="modality-interpretation">
+                                                {{ item.interpretation }}
+                                            </div>
+                                            {% if item.landmarks is defined and item.landmarks %}
+                                            <div class="mt-3 p-2 bg-light rounded">
+                                                <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i> Detected landmarks: {{ item.landmarks|length }} points</small>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-muted">No visual cues analysis available for this media.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info mt-4">
+                            <i class="fas fa-info-circle me-2"></i> Visual analysis examines facial expressions, gestures, posture, and other non-verbal visual cues that indicate emotional states. The facial landmarks detection provides precise measurement of expression changes.
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Audio Analysis Tab -->
+                    <div class="tab-pane fade" id="audio" role="tabpanel" aria-labelledby="audio-tab">
+                        {% if result.acoustic_features_chart %}
+                        <div class="chart-container mb-4">
+                            <h5 class="chart-title"><i class="fas fa-waveform me-2"></i> Raw Acoustic Features</h5>
+                            <img src="{{ url_for('uploaded_file', filename='charts/' + result.acoustic_features_chart) }}" 
+                                 alt="Raw Acoustic Features" class="chart-image">
+                            <div class="chart-description">
+                                <i class="fas fa-info-circle me-2"></i> This chart visualizes the direct measurement of acoustic properties including pitch, volume, speech rate, and vocal tension, extracted directly from the audio data.
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if result.vocal_pattern_chart %}
+                        <div class="chart-container mb-4">
+                            <h5 class="chart-title"><i class="fas fa-volume-up me-2"></i> Vocal Pattern Analysis</h5>
+                            <img src="{{ url_for('uploaded_file', filename='charts/' + result.vocal_pattern_chart) }}" 
+                                 alt="Vocal Pattern Analysis" class="chart-image">
+                        </div>
+                        {% endif %}
+                        
+                        <div class="modality-section modality-audio">
+                            <div class="modality-header">
+                                <i class="fas fa-headphones me-2"></i> Audio/Vocal Cues Analysis
+                            </div>
+                            <div class="modality-body">
+                                {% if result.modality_analysis.audio|length > 0 %}
+                                    {% for item in result.modality_analysis.audio %}
+                                        <div class="modality-item">
+                                            <div class="modality-cue">
+                                                <i class="fas fa-angle-right me-2"></i> {{ item.cue }}
+                                            </div>
+                                            <div class="modality-interpretation">
+                                                {{ item.interpretation }}
+                                            </div>
+                                            {% if item.acoustic_features is defined and item.acoustic_features %}
+                                            <div class="row mt-3">
+                                                {% if item.acoustic_features.pitch is defined %}
+                                                <div class="col-md-3 col-sm-6 mb-2">
+                                                    <div class="p-2 bg-light rounded text-center">
+                                                        <small class="d-block text-muted">Pitch</small>
+                                                        <strong>{{ item.acoustic_features.pitch }}/10</strong>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                                {% if item.acoustic_features.volume is defined %}
+                                                <div class="col-md-3 col-sm-6 mb-2">
+                                                    <div class="p-2 bg-light rounded text-center">
+                                                        <small class="d-block text-muted">Volume</small>
+                                                        <strong>{{ item.acoustic_features.volume }}/10</strong>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                                {% if item.acoustic_features.speech_rate is defined %}
+                                                <div class="col-md-3 col-sm-6 mb-2">
+                                                    <div class="p-2 bg-light rounded text-center">
+                                                        <small class="d-block text-muted">Speech Rate</small>
+                                                        <strong>{{ item.acoustic_features.speech_rate }}/10</strong>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                                {% if item.acoustic_features.vocal_tension is defined %}
+                                                <div class="col-md-3 col-sm-6 mb-2">
+                                                    <div class="p-2 bg-light rounded text-center">
+                                                        <small class="d-block text-muted">Vocal Tension</small>
+                                                        <strong>{{ item.acoustic_features.vocal_tension }}/10</strong>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-muted">No audio cues analysis available for this media.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-warning mt-4">
+                            <i class="fas fa-info-circle me-2"></i> Audio analysis now extracts and measures objective vocal properties directly from the audio data, including pitch variations, volume levels, speech rate, and vocal quality indicators of emotional states.
+                        </div>
+                    </div>
+                    
+                    <!-- Verbal Content Tab -->
+                    <div class="tab-pane fade" id="verbal" role="tabpanel" aria-labelledby="verbal-tab">
+                        {% if result.verbal_sentiment_chart %}
+                        <div class="chart-container mb-4">
+                            <h5 class="chart-title"><i class="fas fa-comment-dots me-2"></i> Verbal Sentiment Flow</h5>
+                            <img src="{{ url_for('uploaded_file', filename='charts/' + result.verbal_sentiment_chart) }}" 
+                                 alt="Verbal Sentiment Flow" class="chart-image">
+                        </div>
+                        {% endif %}
+                        
+                        <div class="modality-section modality-verbal">
+                            <div class="modality-header">
+                                <i class="fas fa-comment me-2"></i> Verbal Content Analysis
+                            </div>
+                            <div class="modality-body">
+                                {% if result.modality_analysis.verbal|length > 0 %}
+                                    {% for item in result.modality_analysis.verbal %}
+                                        <div class="modality-item">
+                                            <div class="modality-cue">
+                                                <i class="fas fa-quote-left me-2"></i> {{ item.content }}
+                                            </div>
+                                            <div class="modality-interpretation">
+                                                {{ item.emotional_meaning }}
+                                            </div>
+                                            {% if item.sentiment_score is defined %}
+                                            <div class="mt-3">
+                                                <div class="progress" style="height: 8px;">
+                                                    {% if item.sentiment_score >= 0 %}
+                                                    <div class="progress-bar bg-success" role="progressbar" 
+                                                         style="width: {{ (item.sentiment_score * 100)|abs }}%" 
+                                                         aria-valuenow="{{ item.sentiment_score }}" 
+                                                         aria-valuemin="-1" aria-valuemax="1"></div>
+                                                    {% else %}
+                                                    <div class="progress-bar bg-danger" role="progressbar" 
+                                                         style="width: {{ (item.sentiment_score * 100)|abs }}%" 
+                                                         aria-valuenow="{{ item.sentiment_score }}" 
+                                                         aria-valuemin="-1" aria-valuemax="1"></div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="d-flex justify-content-between mt-1">
+                                                    <small class="text-danger">Negative</small>
+                                                    <small class="text-success">Positive</small>
+                                                </div>
+                                                <div class="text-center">
+                                                    <small class="text-muted">Sentiment Score: {{ item.sentiment_score }}</small>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-muted">No verbal content analysis available for this media.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-primary mt-4">
+                            <i class="fas fa-info-circle me-2"></i> Verbal analysis examines the spoken words, phrases, and linguistic patterns that reveal emotional states and intentions. Each statement now includes a quantitative sentiment score.
+                        </div>
+                    </div>
+                    
+                    <!-- Raw Features Tab -->
+                    <div class="tab-pane fade" id="raw-data" role="tabpanel" aria-labelledby="raw-data-tab">
+                        <h5 class="chart-title mb-4"><i class="fas fa-microchip me-2"></i> Raw Feature Analysis</h5>
+                        
+                        <div class="alert alert-info mb-4">
+                            <i class="fas fa-info-circle me-2"></i> This section displays the raw data features extracted directly from the media, providing objective measurements of emotional indicators across modalities.
+                        </div>
+                        
+                        <!-- Body Language and Gesture Analysis Section -->
+                        {% if result.gesture_analysis_chart %}
+                        <div class="chart-container mb-4">
+                            <h5 class="chart-title"><i class="fas fa-hands me-2"></i> Body Language Analysis</h5>
+                            <img src="{{ url_for('uploaded_file', filename='charts/' + result.gesture_analysis_chart) }}" 
+                                alt="Body Language Analysis" class="chart-image">
+                            <div class="chart-description">
+                                <i class="fas fa-info-circle me-2"></i> This visualization shows detected body language and gesture patterns that indicate emotional states, including posture, hand positions, and movement patterns.
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Gesture Data Section -->
+                        {% if result.raw_features is defined and result.raw_features.gesture_data is defined and result.raw_features.gesture_data|length > 0 %}
+                        <div class="modality-section mt-4">
+                            <div class="modality-header" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">
+                                <i class="fas fa-hands me-2"></i> Gesture Analysis Data
+                            </div>
+                            <div class="modality-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Timestamp</th>
+                                                <th>Gesture Type</th>
+                                                <th>Intensity</th>
+                                                <th>Emotional Meaning</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in result.raw_features.gesture_data %}
+                                                {% for gesture in item.gestures %}
+                                                <tr>
+                                                    <td>{{ '%02d:%02d'|format(item.timestamp//60, item.timestamp%60) }}</td>
+                                                    <td>{{ gesture.gesture_type }}</td>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                                                <div class="progress-bar bg-purple" role="progressbar" 
+                                                                    style="width: {{ (gesture.intensity|default(5.0)|float * 10)|int }}%;background-color: #9b59b6;" 
+                                                                    aria-valuenow="{{ gesture.intensity|default(5.0)|float|round(1) }}" 
+                                                                    aria-valuemin="0" aria-valuemax="10"></div>
+                                                            </div>
+                                                            <span>{{ gesture.intensity|default(5.0)|float|round(1) }}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>{{ gesture.meaning }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Audio Patterns Section -->
+                        {% if result.raw_features is defined and result.raw_features.audio_patterns is defined and result.raw_features.audio_patterns|length > 0 %}
+                        <div class="modality-section">
+                            <div class="modality-header" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);">
+                                <i class="fas fa-volume-up me-2"></i> Raw Audio Patterns
+                            </div>
+                            <div class="modality-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Timestamp</th>
+                                                <th>Pitch</th>
+                                                <th>Volume</th>
+                                                <th>Speech Rate</th>
+                                                <th>Vocal Tension</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in result.raw_features.audio_patterns %}
+                                            <tr>
+                                                <td>{{ '%02d:%02d'|format(item.timestamp//60, item.timestamp%60) }}</td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                                            <div class="progress-bar bg-primary" role="progressbar" 
+                                                                style="width: {{ (item.pitch|default(5.0)|float * 10)|int }}%" 
+                                                                aria-valuenow="{{ item.pitch|default(5.0)|float|round(1) }}" 
+                                                                aria-valuemin="0" aria-valuemax="10"></div>
+                                                        </div>
+                                                        <span>{{ item.pitch|default(5.0)|float|round(1) }}</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                                            <div class="progress-bar bg-danger" role="progressbar" 
+                                                                style="width: {{ (item.volume|default(5.0)|float * 10)|int }}%" 
+                                                                aria-valuenow="{{ item.volume|default(5.0)|float|round(1) }}" 
+                                                                aria-valuemin="0" aria-valuemax="10"></div>
+                                                        </div>
+                                                        <span>{{ item.volume|default(5.0)|float|round(1) }}</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                                            <div class="progress-bar bg-success" role="progressbar" 
+                                                                style="width: {{ (item.speech_rate|default(5.0)|float * 10)|int }}%" 
+                                                                aria-valuenow="{{ item.speech_rate|default(5.0)|float|round(1) }}" 
+                                                                aria-valuemin="0" aria-valuemax="10"></div>
+                                                        </div>
+                                                        <span>{{ item.speech_rate|default(5.0)|float|round(1) }}</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                                            <div class="progress-bar bg-warning" role="progressbar" 
+                                                                style="width: {{ (item.vocal_tension|default(5.0)|float * 10)|int }}%" 
+                                                                aria-valuenow="{{ item.vocal_tension|default(5.0)|float|round(1) }}" 
+                                                                aria-valuemin="0" aria-valuemax="10"></div>
+                                                        </div>
+                                                        <span>{{ item.vocal_tension|default(5.0)|float|round(1) }}</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                {% if result.acoustic_features_chart %}
+                                <div class="mt-4">
+                                    <img src="{{ url_for('uploaded_file', filename='charts/' + result.acoustic_features_chart) }}" 
+                                        alt="Raw Acoustic Features" class="img-fluid rounded">
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if not ((result.raw_features is defined and 
+                               ((result.raw_features.audio_patterns is defined and result.raw_features.audio_patterns|length > 0) or
+                                (result.raw_features.gesture_data is defined and result.raw_features.gesture_data|length > 0))) or
+                               result.gesture_analysis_chart) %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i> No raw feature data available for this analysis. Try running a new analysis with enhanced feature extraction enabled.
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Chat with Psychologist Tab -->
+                    <div class="tab-pane fade" id="chat" role="tabpanel" aria-labelledby="chat-tab">
+                        <h5 class="chart-title mb-4"><i class="fas fa-comments me-2"></i> Chat with AI Psychologist</h5>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> Discuss your analysis results with our AI psychologist. The AI has access to your current analysis data but won't remember previous conversations.
+                        </div>
+                        
+                        <div class="chat-container">
+                            <div class="messages-container" id="chat-messages">
+                                <div class="message system-message">
+                                    <div class="message-content">
+                                        <p>Hello! I'm your AI psychologist assistant. I've analyzed your data and I'm here to discuss the results with you. Feel free to ask me anything about the emotional analysis.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="chat-input-container">
+                                <form id="chat-form">
+                                    <div class="input-group">
+                                        <input type="text" id="chat-input" class="form-control" placeholder="Type your message here..." autofocus>
+                                        <button class="btn btn-primary" type="submit">
+                                            <i class="fas fa-paper-plane"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center btn-back fade-in-delay-3 mt-5">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">
+                        <i class="fas fa-arrow-left me-2"></i> Analyze Another Media
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer fade-in-delay-3">
+            <p>Powered by Advanced Emotion Analysis · © 2025</p>
+            <p><small>Secure, private analysis with state-of-the-art AI technology</small></p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Set the analysis ID for chat functionality
+        window.analysisId = "{{ analysis_id }}";
+    </script>
+    <script src="{{ url_for('static', filename='chat.js') }}"></script>
+    <script>
+        // Format timestamps and handle media seeking
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle timeline item clicks to seek to the appropriate time in the media
+            const timelineItems = document.querySelectorAll('.timeline-item');
+            const mediaPlayer = document.querySelector('video, audio');
+            
+            if (mediaPlayer) {
+                timelineItems.forEach(item => {
+                    const timestamp = item.getAttribute('data-timestamp');
+                    if (timestamp) {
+                        item.addEventListener('click', () => {
+                            mediaPlayer.currentTime = parseFloat(timestamp);
+                            mediaPlayer.play();
+                        });
+                        
+                        // Add cursor pointer and hover effect to indicate clickable
+                        item.style.cursor = 'pointer';
+                        
+                        // Add tooltip to show it's clickable
+                        item.setAttribute('title', 'Click to seek to this timestamp');
+                    }
+                });
+                
+                // Enable seeking from raw feature timestamps too
+                const rawFeatureTimestamps = document.querySelectorAll('tr td:first-child');
+                rawFeatureTimestamps.forEach(td => {
+                    const timeText = td.textContent.trim();
+                    if (timeText.includes(':')) {
+                        const parts = timeText.split(':');
+                        if (parts.length === 2) {
+                            const minutes = parseInt(parts[0]);
+                            const seconds = parseInt(parts[1]);
+                            const totalSeconds = minutes * 60 + seconds;
+                            
+                            td.style.cursor = 'pointer';
+                            td.setAttribute('title', 'Click to seek to this timestamp');
+                            td.classList.add('text-primary');
+                            
+                            td.addEventListener('click', () => {
+                                mediaPlayer.currentTime = totalSeconds;
+                                mediaPlayer.play();
+                            });
+                        }
+                    }
+                });
+            }
+            
+            // Add animations when scrolling
+            const animateOnScroll = function() {
+                const elements = document.querySelectorAll('.chart-container, .modality-section, .emotion-card');
+                
+                elements.forEach(element => {
+                    const elementTop = element.getBoundingClientRect().top;
+                    const elementVisible = 150;
+                    
+                    if (elementTop < window.innerHeight - elementVisible) {
+                        element.classList.add('fade-in');
+                    }
+                });
+            };
+            
+            // Run on scroll
+            window.addEventListener('scroll', animateOnScroll);
+            
+            // Initial check
+            animateOnScroll();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,472 @@
+<!-- index.html (Updated Version) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Analysis - Advanced Multimodal Analysis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/logo.png') }}">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --accent-color: #e74c3c;
+            --bg-light: #f8f9fa;
+            --bg-dark: #2c3e50;
+            --text-dark: #2c3e50;
+            --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            padding-top: 50px;
+            padding-bottom: 50px;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .container {
+            max-width: 900px;
+        }
+        
+        .card {
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 24px;
+            border: none;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background-color: rgba(52, 152, 219, 0.1);
+            border-bottom: 1px solid rgba(52, 152, 219, 0.2);
+            padding: 15px 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            color: var(--bg-dark);
+            margin-top: 15px;
+            font-weight: 700;
+        }
+        
+        .app-logo {
+            max-width: 180px;
+            margin: 0 auto 15px auto;
+            display: block;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .app-logo:hover {
+            transform: scale(1.05);
+        }
+        
+        .form-control {
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-tabs {
+            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 20px;
+        }
+        
+        .nav-tabs .nav-link {
+            border: none;
+            border-bottom: 3px solid transparent;
+            border-radius: 0;
+            padding: 12px 20px;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-tabs .nav-link:hover {
+            border-color: transparent;
+            color: var(--primary-color);
+        }
+        
+        .nav-tabs .nav-link.active {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background-color: transparent;
+        }
+        
+        .task-options {
+            margin-top: 20px;
+        }
+        
+        .form-check {
+            padding: 12px 15px;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        
+        .form-check:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        
+        .form-check-input {
+            margin-top: 0.3em;
+        }
+        
+        .form-check-label {
+            font-weight: 500;
+            margin-left: 8px;
+        }
+        
+        .badge-new {
+            background-color: var(--accent-color);
+            color: white;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-left: 8px;
+            font-weight: 600;
+            vertical-align: middle;
+        }
+        
+        .upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+        
+        .file-info {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 8px;
+        }
+        
+        .profile-section {
+            background-color: rgba(46, 204, 113, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #2ecc71;
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+        
+        .footer {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="container fade-in">
+        <div class="header">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Emotion Analysis" class="app-logo">
+            <h1>Emotion Analysis</h1>
+            <p class="lead">Advanced Multimodal Emotion Recognition System</p>
+        </div>
+        
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i> {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-cloud-upload-alt me-2"></i> Upload Media for Analysis</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data" id="analysis-form">
+                    
+                    <!-- Profile Upload Section -->
+                    <div class="profile-section">
+                        <div class="section-title">
+                            <i class="fas fa-user-circle"></i> Individual Profile (Optional)
+                        </div>
+                        <p class="mb-3">Upload a profile document for enhanced contextual analysis. This can include psychological history, behavioral patterns, or other relevant information.</p>
+                        
+                        <div class="mb-3">
+                            <label for="profile_file" class="form-label">Upload Profile Document (PDF, TXT)</label>
+                            <input class="form-control" type="file" id="profile_file" name="profile_file" accept=".pdf,.txt,.docx">
+                            <div class="file-info">
+                                <i class="fas fa-info-circle me-1"></i> Profile information will be used to personalize the analysis
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Media Upload Tabs -->
+                    <ul class="nav nav-tabs" id="mediaTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="video-tab" data-bs-toggle="tab" data-bs-target="#video-pane" 
+                                    type="button" role="tab" aria-controls="video-pane" aria-selected="true">
+                                <i class="fas fa-video me-2"></i> Video Analysis
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="audio-tab" data-bs-toggle="tab" data-bs-target="#audio-pane" 
+                                    type="button" role="tab" aria-controls="audio-pane" aria-selected="false">
+                                <i class="fas fa-headphones me-2"></i> Audio Analysis
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content" id="mediaTabContent">
+                        <!-- Video Upload Pane -->
+                        <div class="tab-pane fade show active" id="video-pane" role="tabpanel" aria-labelledby="video-tab">
+                            <input type="hidden" id="media_type_input" name="media_type" value="video">
+                            
+                            <div class="upload-area" id="video-upload-area">
+                                <i class="fas fa-film upload-icon"></i>
+                                <h5>Upload Video File</h5>
+                                <p>Drag and drop your video file here or click to browse</p>
+                                <input class="form-control" type="file" id="video_file" name="video_file" accept="video/*" 
+                                       onchange="updateFileName(this, 'video-filename')">
+                                <div id="video-filename" class="file-info mt-2"></div>
+                            </div>
+                            
+                            <div class="task-options" id="video-task-options">
+                                <label class="form-label">Analysis Type:</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="task_type" id="emotion_video" value="emotion" checked>
+                                    <label class="form-check-label" for="emotion_video">
+                                        <strong>Emotion Recognition</strong> - Basic emotion classification with scores
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="task_type" id="visual_video" value="visual">
+                                    <label class="form-check-label" for="visual_video">
+                                        <strong>Visual Analysis</strong> - Focus on facial expressions and body language
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="task_type" id="comprehensive_video" value="comprehensive">
+                                    <label class="form-check-label" for="comprehensive_video">
+                                        <strong>Comprehensive Analysis</strong> <span class="badge-new">DETAILED</span> - Complete multimodal analysis
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="task_type" id="clinical_video" value="clinical">
+                                    <label class="form-check-label" for="clinical_video">
+                                        <strong>Clinical Assessment</strong> - Professional psychological perspective
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Audio Upload Pane -->
+                        <div class="tab-pane fade" id="audio-pane" role="tabpanel" aria-labelledby="audio-tab">
+                            <div class="upload-area" id="audio-upload-area">
+                                <i class="fas fa-music upload-icon"></i>
+                                <h5>Upload Audio File</h5>
+                                <p>Drag and drop your audio file here or click to browse</p>
+                                <input class="form-control" type="file" id="audio_file" name="audio_file" accept="audio/*"
+                                       onchange="updateFileName(this, 'audio-filename')">
+                                <div id="audio-filename" class="file-info mt-2"></div>
+                            </div>
+                            
+                            <div class="task-options" id="audio-task-options">
+                                <label class="form-label">Analysis Type:</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="task_type" id="emotion_audio" value="emotion" checked>
+                                    <label class="form-check-label" for="emotion_audio">
+                                        <strong>Emotion Recognition</strong> - Vocal emotion classification with scores
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="task_type" id="audio_analysis" value="audio">
+                                    <label class="form-check-label" for="audio_analysis">
+                                        <strong>Audio Analysis</strong> - Detailed vocal tone and speech pattern analysis
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="task_type" id="comprehensive_audio" value="comprehensive">
+                                    <label class="form-check-label" for="comprehensive_audio">
+                                        <strong>Comprehensive Analysis</strong> <span class="badge-new">DETAILED</span> - Deep vocal emotion assessment
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-chart-bar me-2"></i> Analyze Media
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> About Our Technology</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-brain me-2 text-primary"></i> Enhanced Analysis</h6>
+                        <ul class="list-unstyled ms-4">
+                            <li><i class="fas fa-check-circle me-2 text-success"></i> Numerical emotion scores (1-10)</li>
+                            <li><i class="fas fa-check-circle me-2 text-success"></i> Detailed justifications for each emotion</li>
+                            <li><i class="fas fa-check-circle me-2 text-success"></i> Profile-based contextual analysis</li>
+                            <li><i class="fas fa-check-circle me-2 text-success"></i> Multimodal integration (audio, visual, verbal)</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-chart-pie me-2 text-primary"></i> Applications</h6>
+                        <ul class="list-unstyled ms-4">
+                            <li><i class="fas fa-check-circle me-2 text-success"></i> Clinical psychological assessment</li>
+                            <li><i class="fas fa-check-circle me-2 text-success"></i> Human-computer interaction research</li>
+                            <li><i class="fas fa-check-circle me-2 text-success"></i> Customer experience analysis</li>
+                            <li><i class="fas fa-check-circle me-2 text-success"></i> Educational emotional intelligence</li>
+                        </ul>
+                    </div>
+                </div>
+                <p class="card-text mt-3">
+                    <small class="text-muted"><i class="fas fa-clock me-1"></i> Note: Comprehensive analysis takes longer but provides more detailed insights.</small>
+                </p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Powered by Emotion-LLaMA · © 2025 Advanced Emotion Analysis</p>
+            <p><small>Secure, private analysis with state-of-the-art AI technology</small></p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Handle tab switching to update the media type input
+        document.addEventListener('DOMContentLoaded', function() {
+            const videoTab = document.getElementById('video-tab');
+            const audioTab = document.getElementById('audio-tab');
+            const mediaTypeInput = document.getElementById('media_type_input');
+            
+            videoTab.addEventListener('click', function() {
+                mediaTypeInput.value = 'video';
+            });
+            
+            audioTab.addEventListener('click', function() {
+                mediaTypeInput.value = 'audio';
+            });
+            
+            // Make upload areas clickable
+            const videoUploadArea = document.getElementById('video-upload-area');
+            const audioUploadArea = document.getElementById('audio-upload-area');
+            const videoFileInput = document.getElementById('video_file');
+            const audioFileInput = document.getElementById('audio_file');
+            
+            videoUploadArea.addEventListener('click', function() {
+                videoFileInput.click();
+            });
+            
+            audioUploadArea.addEventListener('click', function() {
+                audioFileInput.click();
+            });
+            
+            // Initialize the form validation
+            const form = document.getElementById('analysis-form');
+            form.addEventListener('submit', function(event) {
+                const mediaType = mediaTypeInput.value;
+                const fileInput = document.getElementById(`${mediaType}_file`);
+                
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    event.preventDefault();
+                    alert(`Please select a ${mediaType} file to analyze`);
+                }
+            });
+        });
+        
+        // Update filename display when file is selected
+        function updateFileName(input, elementId) {
+            const fileInfo = document.getElementById(elementId);
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const fileSize = (file.size / (1024 * 1024)).toFixed(2);
+                fileInfo.innerHTML = `<i class="fas fa-file me-1"></i> ${file.name} (${fileSize} MB)`;
+                
+                // Make the parent div look active
+                input.closest('.upload-area').style.borderColor = '#3498db';
+                input.closest('.upload-area').style.backgroundColor = 'rgba(52, 152, 219, 0.05)';
+            } else {
+                fileInfo.innerHTML = '';
+                input.closest('.upload-area').style.borderColor = '#dee2e6';
+                input.closest('.upload-area').style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
+            }
+        }
+    </script>
+</body>
+</html>
