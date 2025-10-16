@@ -118,7 +118,6 @@ kapre
 keras
 kiwisolver==1.4.8
 kornia==0.8.0
-kornia_rs==0.1.8
 langchain
 langchain-core==0.3.37
 langchain-text-splitters==0.3.6
@@ -286,6 +285,7 @@ youtube-transcript-api==0.6.3
 zipp==3.21.0
 zope.interface==7.2
 zstandard==0.23.0
+
 
 
 
