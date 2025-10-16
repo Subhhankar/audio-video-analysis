@@ -249,7 +249,6 @@ tenacity==9.0.0
 tensorboard==2.18.0
 tensorboard-data-server==0.7.2
 tensorflow>=1.9.0
-tensorflow-io-gcs-filesystem==0.31.0
 tensorflow_intel==2.18.0
 termcolor==2.5.0
 tf_keras==2.18.0
@@ -289,6 +288,7 @@ youtube-transcript-api==0.6.3
 zipp==3.21.0
 zope.interface==7.2
 zstandard==0.23.0
+
 
 
 
