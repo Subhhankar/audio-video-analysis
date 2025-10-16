@@ -214,7 +214,6 @@ RapidFuzz==3.12.1
 regex==2024.11.6
 requests==2.32.3
 requests-toolbelt==1.0.0
-resampy==0.2.2
 retina-face==0.0.17
 rich==13.9.4
 rsa==4.9
@@ -291,6 +290,7 @@ youtube-transcript-api==0.6.3
 zipp==3.21.0
 zope.interface==7.2
 zstandard==0.23.0
+
 
 
 
