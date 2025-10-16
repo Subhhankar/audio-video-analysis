@@ -155,7 +155,6 @@ numpy
 opencv-contrib-python==4.11.0.86
 opencv-python==4.11.0.86
 opencv-python-headless==4.11.0.86
-openl3==0.4.2
 opensmile==2.5.1
 opt-einsum==3.3.0
 optree==0.14.0
@@ -292,6 +291,7 @@ youtube-transcript-api==0.6.3
 zipp==3.21.0
 zope.interface==7.2
 zstandard==0.23.0
+
 
 
 
